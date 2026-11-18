@@ -266,7 +266,12 @@ documentation plus a physical-device check.
   (2026-11-16): unknown callers reached `CallFilterScreeningService`, but calls
   from stored contacts bypassed it and were routed to Samsung's own service.
   Do not claim contact-name blocking works on that OEM.
-- Native Android regex matching has static safety checks but no runtime timeout.
+- Native Android regex matching has static safety checks and a 1.5 s
+  fail-open evaluation bound. A timed-out Java regex worker may still finish
+  independently; do not describe this as a complete ReDoS guarantee.
+- Snapshot sync is automatic on app start and after rules, whitelist, settings
+  or history changes via `PlatformSyncCoordinator`; the manual Settings action
+  remains as a recovery/diagnostic control.
 - Database schema is version 2. Migration v1→v2 adds
   `app_settings.theme_mode`; there is a migration test in
   `test/features/data/migration_test.dart`. Future schema changes must add a

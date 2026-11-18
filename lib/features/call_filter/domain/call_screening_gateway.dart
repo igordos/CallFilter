@@ -3,6 +3,9 @@ import 'package:call_filter/features/call_filter/domain/platform_filter_snapshot
 
 /// Abstraction over Android's CallScreeningService and iOS Call Directory.
 abstract interface class CallScreeningGateway {
+  /// Whether the platform has a native call-screening implementation.
+  bool get isSupported;
+
   Future<PlatformCapabilities> getCapabilities();
 
   /// Persists the current local rules for native code.

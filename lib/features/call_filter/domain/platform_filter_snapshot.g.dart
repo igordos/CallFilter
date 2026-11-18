@@ -20,11 +20,15 @@ PlatformFilterSnapshot _$PlatformFilterSnapshotFromJson(
       .map((e) => CallDirectoryMapping.fromJson(e as Map<String, dynamic>))
       .toList(),
   generatedAt: DateTime.parse(json['generatedAt'] as String),
+  schemaVersion:
+      (json['schemaVersion'] as num?)?.toInt() ??
+      platformFilterSnapshotSchemaVersion,
 );
 
 Map<String, dynamic> _$PlatformFilterSnapshotToJson(
   PlatformFilterSnapshot instance,
 ) => <String, dynamic>{
+  'schemaVersion': instance.schemaVersion,
   'filteringEnabled': instance.filteringEnabled,
   'rules': instance.rules.map((e) => e.toJson()).toList(),
   'whitelistNumbers': instance.whitelistNumbers,

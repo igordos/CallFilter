@@ -10,7 +10,8 @@ data class NativeDirectoryMapping(
 )
 
 data class NativeFilterSnapshot(
-    val filteringEnabled: Boolean = true,
+    val schemaVersion: Int = 0,
+    val filteringEnabled: Boolean = false,
     val rules: List<NativeRule> = emptyList(),
     val whitelistNumbers: Set<String> = emptySet(),
     val directoryMappings: List<NativeDirectoryMapping> = emptyList(),
@@ -19,8 +20,14 @@ data class NativeFilterSnapshot(
 object CallFilterPreferences {
     private const val PREFS_NAME = "call_filter_native"
     private const val KEY_SNAPSHOT = "filter_snapshot"
+    const val SUPPORTED_SCHEMA_VERSION = 1
 
+    /**
+     * Validates and writes a complete snapshot with one SharedPreferences
+     * commit. A partial/invalid snapshot is never installed.
+     */
     fun saveRaw(context: Context, raw: String): Boolean {
+        parse(raw) ?: return false
         return context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -32,62 +39,88 @@ object CallFilterPreferences {
         val raw = context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_SNAPSHOT, null)
-        return parse(raw)
+        // Missing or malformed data must fail open: an empty snapshot allows
+        // the call rather than applying an unknown or partial rule set.
+        return parse(raw) ?: NativeFilterSnapshot()
     }
 
-    fun parse(raw: String?): NativeFilterSnapshot {
+    /**
+     * Parses a native snapshot. Returns null for malformed, partial or newer
+     * schema data. Legacy snapshots without a version are accepted as v0 so an
+     * installed app does not lose its last known data before the next sync.
+     */
+    fun parse(raw: String?): NativeFilterSnapshot? {
         if (raw.isNullOrBlank()) {
-            return NativeFilterSnapshot()
+            return null
         }
         return try {
             val root = JSONObject(raw)
+            val version = root.optInt("schemaVersion", 0)
+            if (version < 0 || version > SUPPORTED_SCHEMA_VERSION) {
+                return null
+            }
+            if (!root.has("filteringEnabled") ||
+                !root.has("rules") ||
+                !root.has("whitelistNumbers") ||
+                !root.has("directoryMappings")
+            ) {
+                return null
+            }
+
             val rules = mutableListOf<NativeRule>()
-            root.optJSONArray("rules")?.let { array ->
-                for (index in 0 until array.length()) {
-                    val item = array.optJSONObject(index) ?: continue
-                    rules.add(
-                        NativeRule(
-                            id = item.optString("id"),
-                            name = item.optString("name"),
-                            pattern = item.optString("pattern"),
-                            priority = item.optInt("priority"),
-                        ),
-                    )
+            val rulesArray = root.optJSONArray("rules") ?: return null
+            for (index in 0 until rulesArray.length()) {
+                val item = rulesArray.optJSONObject(index) ?: continue
+                val id = item.optString("id")
+                val pattern = item.optString("pattern")
+                if (id.isBlank() || pattern.isBlank()) {
+                    continue
                 }
+                rules.add(
+                    NativeRule(
+                        id = id,
+                        name = item.optString("name"),
+                        pattern = pattern,
+                        priority = item.optInt("priority"),
+                    ),
+                )
             }
 
             val whitelist = mutableSetOf<String>()
-            root.optJSONArray("whitelistNumbers")?.let { array ->
-                for (index in 0 until array.length()) {
-                    val value = array.optString(index)
-                    if (value.isNotBlank()) {
-                        whitelist.add(value)
-                    }
+            val whitelistArray = root.optJSONArray("whitelistNumbers") ?: return null
+            for (index in 0 until whitelistArray.length()) {
+                val value = whitelistArray.optString(index)
+                if (value.isNotBlank()) {
+                    whitelist.add(value)
                 }
             }
 
             val mappings = mutableListOf<NativeDirectoryMapping>()
-            root.optJSONArray("directoryMappings")?.let { array ->
-                for (index in 0 until array.length()) {
-                    val item = array.optJSONObject(index) ?: continue
-                    mappings.add(
-                        NativeDirectoryMapping(
-                            phoneNumber = item.optString("phoneNumber"),
-                            label = item.optString("label"),
-                            shouldBlock = item.optBoolean("shouldBlock", false),
-                        ),
-                    )
+            val mappingsArray = root.optJSONArray("directoryMappings") ?: return null
+            for (index in 0 until mappingsArray.length()) {
+                val item = mappingsArray.optJSONObject(index) ?: continue
+                val number = item.optString("phoneNumber")
+                if (number.isBlank()) {
+                    continue
                 }
+                mappings.add(
+                    NativeDirectoryMapping(
+                        phoneNumber = number,
+                        label = item.optString("label"),
+                        shouldBlock = item.optBoolean("shouldBlock", false),
+                    ),
+                )
             }
 
             NativeFilterSnapshot(
-                filteringEnabled = root.optBoolean("filteringEnabled", true),
+                schemaVersion = version,
+                filteringEnabled = root.optBoolean("filteringEnabled", false),
                 rules = rules,
                 whitelistNumbers = whitelist,
                 directoryMappings = mappings,
             )
         } catch (_: Exception) {
-            NativeFilterSnapshot()
+            null
         }
     }
 }

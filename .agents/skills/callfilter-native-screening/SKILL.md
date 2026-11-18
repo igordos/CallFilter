@@ -21,9 +21,11 @@ call.
   `CallFilterScreeningService`, but stored-contact calls were routed only to
   Samsung's own service. Do not claim contact-name blocking works there.
 - Native blocked calls are not written back to the Flutter history table.
-- Android native regex matching has static safety checks but no runtime timeout.
-- Snapshot synchronization is manual from Settings in the current implementation;
-  do not describe rules as active in native until sync is verified.
+- Android native regex matching has static safety checks and a 1.5 s
+  fail-open evaluation bound; a timed-out worker may still finish.
+- `PlatformSyncCoordinator` syncs on app start and after repository changes;
+  the Settings action remains manual recovery. Do not describe rules as active
+  in native until sync and a physical call are verified.
 
 ## Work
 

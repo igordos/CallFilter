@@ -7,6 +7,9 @@ class UnsupportedCallScreeningGateway implements CallScreeningGateway {
   const UnsupportedCallScreeningGateway();
 
   @override
+  bool get isSupported => false;
+
+  @override
   Future<PlatformCapabilities> getCapabilities() async {
     return const PlatformCapabilities.unsupported();
   }

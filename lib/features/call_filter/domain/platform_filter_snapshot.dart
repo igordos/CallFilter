@@ -2,6 +2,9 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'platform_filter_snapshot.g.dart';
 
+/// Current wire schema for [PlatformFilterSnapshot].
+const int platformFilterSnapshotSchemaVersion = 1;
+
 /// Data handed to the native layer.
 ///
 /// Android can attempt name matching at screening time. iOS cannot: a Call
@@ -14,11 +17,15 @@ class PlatformFilterSnapshot {
     required this.whitelistNumbers,
     required this.directoryMappings,
     required this.generatedAt,
+    this.schemaVersion = platformFilterSnapshotSchemaVersion,
   });
 
   factory PlatformFilterSnapshot.fromJson(Map<String, dynamic> json) =>
       _$PlatformFilterSnapshotFromJson(json);
 
+  static const int currentSchemaVersion = platformFilterSnapshotSchemaVersion;
+
+  final int schemaVersion;
   final bool filteringEnabled;
   final List<PlatformRule> rules;
   final List<String> whitelistNumbers;

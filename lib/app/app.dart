@@ -1,6 +1,7 @@
 import 'package:call_filter/app/router/app_router.dart';
 import 'package:call_filter/app/theme/app_spacing.dart';
 import 'package:call_filter/app/theme/app_theme.dart';
+import 'package:call_filter/core/di/providers.dart';
 import 'package:call_filter/features/settings/domain/app_settings.dart';
 import 'package:call_filter/features/settings/presentation/settings_controller.dart';
 import 'package:call_filter/l10n/gen/app_localizations.dart';
@@ -14,6 +15,7 @@ class CallFilterApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(platformSyncCoordinatorProvider);
     final router = ref.watch(routerProvider);
     final settings = ref.watch(settingsControllerProvider).asData?.value;
     final localeCode = settings?.localeCode;

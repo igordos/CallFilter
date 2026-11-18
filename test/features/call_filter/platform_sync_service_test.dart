@@ -92,4 +92,57 @@ void main() {
       expect(captured!.directoryMappings.single.label, 'Boss');
     },
   );
+
+  test(
+    'syncs only active rules, normalized whitelist and schema version',
+    () async {
+      final rules = MockRulesRepository();
+      final whitelist = MockWhitelistRepository();
+      final history = MockCallHistoryRepository();
+      final settings = MockSettingsRepository();
+      final gateway = MockGateway();
+      PlatformFilterSnapshot? captured;
+
+      when(settings.getSettings).thenAnswer(
+        (_) async =>
+            const AppSettings(filteringEnabled: false, logBlockedCalls: true),
+      );
+      when(rules.getRules).thenAnswer(
+        (_) async => [buildRule(), buildRule(id: 'disabled', isEnabled: false)],
+      );
+      when(whitelist.getEntries).thenAnswer(
+        (_) async => [
+          ContactWhitelistEntry(
+            id: 'white-1',
+            phoneNumber: '+7 (700) 123-45-67',
+            label: 'Boss',
+            createdAt: DateTime(2025),
+          ),
+        ],
+      );
+      when(history.getBlockedCalls).thenAnswer((_) async => []);
+      when(() => gateway.syncSnapshot(any())).thenAnswer((invocation) async {
+        captured =
+            invocation.positionalArguments.first as PlatformFilterSnapshot;
+      });
+
+      await PlatformSyncService(
+        gateway: gateway,
+        rulesRepository: rules,
+        whitelistRepository: whitelist,
+        callHistoryRepository: history,
+        settingsRepository: settings,
+      ).sync();
+
+      expect(captured, isNotNull);
+      expect(
+        captured!.schemaVersion,
+        PlatformFilterSnapshot.currentSchemaVersion,
+      );
+      expect(captured!.filteringEnabled, isFalse);
+      expect(captured!.rules, hasLength(1));
+      expect(captured!.rules.single.id, 'rule-1');
+      expect(captured!.whitelistNumbers, ['77001234567']);
+    },
+  );
 }

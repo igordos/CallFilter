@@ -86,16 +86,20 @@ the call. It never blocks on missing data. The UI reports caller display name as
 - rejects the same nested-quantifier heuristic as the Dart validator;
 - skips invalid patterns.
 
-Java's regex engine has no timeout. The native service currently has no killable
-worker, so the static checks are a mitigation, not a complete ReDoS guarantee.
-A production release should add a bounded worker/job or a vetted linear-time
-matcher before accepting hostile patterns.
+Java's regex engine has no interruptible timeout. The native service evaluates
+rules on a dedicated worker and waits at most 1.5 s; on timeout it responds with
+allow rather than blocking. The static checks are still a mitigation, not a
+complete ReDoS guarantee, and a timed-out worker may finish independently. A
+production release should use a vetted linear-time matcher for hostile
+patterns.
 
 ### Blocked-call history from native callbacks
 
 The current Android service does not write a row into the Flutter Drift
 database. The in-app caller check writes history; real native screening does
-not. This is a known gap and must not be presented as complete.
+not. This remains a known gap. Native diagnostics are structured Logcat
+events with an operation id, snapshot version, rule/whitelist counts, decision
+reason and phone hash; they do not contain phone numbers or caller names.
 
 ### Required release checks
 
@@ -169,9 +173,11 @@ Official references:
 - blocked-call history → `shouldBlock: true` mappings (when a number is known);
 - whitelist labels → `shouldBlock: false` identification mappings.
 
-Because real native history is not wired back yet, in practice the mappings are
-currently built from the local caller-check history. This is useful for
-development and tests but is not a complete call-log import pipeline.
+These mappings are prepared for iOS only. Android intentionally ignores them
+during screening: they are derived from history and could otherwise keep
+blocking a number after its rule was removed or disabled. Because real native
+history is not wired back yet, the mappings are built from local caller-check
+history; this is not a complete call-log import pipeline.
 
 Official references:
 
@@ -189,7 +195,10 @@ Official references:
 | App navigation and caller check | Verified | widget test + iOS simulator integration test |
 | Android debug APK build | Verified | `flutter build apk --debug` |
 | Android native matcher | Verified as JVM unit tests | `./gradlew testDebugUnitTest` |
-| Android CallScreeningService on a real call | **Not verified** | requires physical device + role |
+| Android automatic snapshot sync | Verified on emulator API 36 | snapshot with `schemaVersion=1` in SharedPreferences after cold start and after rule save |
+| Android CallScreeningService binding and callback | Verified on emulator API 36 | `SCREENING_BOUND`, structured log with snapshot/rules/whitelist and `responded` |
+| Android blocked response with a real caller name | **Not verified** | emulator supplied no caller name; contact calls bypassed screening |
+| Android call screening on a physical device | **Not re-verified after this change** | phone was disconnected; previous Samsung result still applies |
 | Android real-call history writeback | **Not implemented** | known gap |
 | iOS simulator app build | Verified | `flutter build ios --simulator --no-codesign` |
 | iOS snapshot parser | Verified | `RunnerTests` in Xcode simulator |

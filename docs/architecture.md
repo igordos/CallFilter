@@ -247,14 +247,18 @@ version in production.
 `PlatformSyncService` builds the snapshot from local repositories:
 
 - filtering enabled;
-- active rules;
+- active rules only;
 - digits-only whitelist numbers;
 - prepared `CallDirectoryMapping`s from blocked-call history and whitelist
-  labels.
+  labels (used by iOS; Android decides from current rules and whitelist only).
 
-The snapshot is JSON with a generated `toJson`/`fromJson` implementation. Native
-code stores it in SharedPreferences (Android) or UserDefaults/App Group
-(iOS). This is a data bridge, not a blocking guarantee.
+`PlatformSyncCoordinator` starts an initial sync with the app and watches the
+rules, whitelist, settings and history streams. It debounces and serializes
+writes, so edits reach native without the manual Settings action. The snapshot
+is JSON with a schema version; Android validates and installs it with one
+atomic SharedPreferences commit. Native code stores it in SharedPreferences
+(Android) or UserDefaults/App Group (iOS). This is a data bridge, not a blocking
+guarantee.
 
 Android also has a `CallScreeningService` that reads the snapshot and uses a
 pure Kotlin matcher. iOS has Call Directory Extension source that reads prepared
@@ -267,7 +271,10 @@ number mappings. See the platform document for the current verification status.
   `AppException.message`, and leaves state backed by the database stream intact.
 - `PlatformIntegrationException` wraps channel failures.
 - The engine never throws for an invalid user pattern; it records the reason.
-- The Android snapshot parser falls back to safe defaults on malformed JSON.
+- The Android snapshot parser rejects malformed/partial/unsupported-version
+  JSON and the service fails open (allows the call) with an empty snapshot.
+- Android decision evaluation is bounded to 1.5 s; timeout and unexpected
+  errors produce an allow response.
 
 ## Testing strategy
 
@@ -319,8 +326,8 @@ changing them, verify with the actual SDK and update the README and CI image.
   reconcile it into `blocked_calls`; ensure deduplication and permissions.
 - **iOS extension target:** add the Call Directory target, App Group entitlement
   and signing; include `CallFilterSnapshot.swift` in the extension target.
-- **Scheduled/background sync:** keep snapshots current after rule changes
-  without blocking the UI; debounce and expose sync state.
+- **Sync status UI:** expose the last successful snapshot version/error and a
+  retry action; the coordinator already debounces and serializes changes.
 - **Number discovery:** build prepared number-to-organization mappings from
   contacts, call log imports or a future provider while staying local by default.
 - **Better ReDoS protection:** a worker pool with a hard deadline and a pattern

@@ -12,6 +12,9 @@ class MethodChannelCallScreeningGateway implements CallScreeningGateway {
   static const MethodChannel _channel = MethodChannel('call_filter/platform');
 
   @override
+  bool get isSupported => true;
+
+  @override
   Future<PlatformCapabilities> getCapabilities() async {
     try {
       final result = await _channel.invokeMapMethod<String, Object?>(

@@ -50,6 +50,9 @@ kotlin {
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
+    // Android's JVM unit-test runtime ships only org.json stubs. This is a
+    // test-only implementation used to verify the native snapshot parser.
+    testImplementation("org.json:json:20240303")
 }
 
 flutter {

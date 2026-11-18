@@ -40,17 +40,30 @@ class CallFilterChannel(
     }
 
     private fun capabilities(): Map<String, Any?> {
+        val roleHeld = isScreeningRoleHeld()
         return mapOf(
             "platform" to "Android ${Build.VERSION.RELEASE}",
-            "callScreening" to "available",
+            "callScreening" to if (roleHeld) "available" else "limited",
             "callerDisplayName" to "limited",
             "callDirectory" to "unavailable",
             "numberBlocking" to "limited",
-            "details" to
-                "CallScreeningService requires the user to grant the call " +
-                "screening role (Android 10+) and the caller display name is " +
-                "not guaranteed to be supplied.",
+            "details" to if (roleHeld) {
+                "CallScreeningService is active. The caller display name is " +
+                    "not guaranteed to be supplied."
+            } else {
+                "Grant the call screening role (Android 10+) in system " +
+                    "settings. Until then CallFilter cannot screen calls."
+            },
         )
+    }
+
+    private fun isScreeningRoleHeld(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return true
+        }
+        val roleManager = activity.getSystemService(RoleManager::class.java)
+            ?: return false
+        return roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)
     }
 
     private fun openSystemSettings() {

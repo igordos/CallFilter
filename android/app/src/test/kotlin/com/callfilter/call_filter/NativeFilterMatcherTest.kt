@@ -15,6 +15,14 @@ class NativeFilterMatcherTest {
     }
 
     @Test
+    fun normalizesUnicodeWhitespace() {
+        assertEquals(
+            "ооо работа",
+            NativeFilterMatcher.normalizeName("ООО\u2003\u00A0РАБОТА"),
+        )
+    }
+
+    @Test
     fun whitelistWinsByDigitsOnly() {
         val whitelist = setOf("+7 (700) 123-45-67")
         assertTrue(NativeFilterMatcher.isWhitelisted("77001234567", whitelist))
@@ -51,6 +59,14 @@ class NativeFilterMatcherTest {
             listOf(invalid, unsafe, valid),
         )
         assertEquals("valid", match?.id)
+    }
+
+    @Test
+    fun skipsExcessiveRepetition() {
+        val unsafe = NativeRule("unsafe", "Unsafe", "a{5000}", 0)
+        val valid = NativeRule("valid", "Valid", "a{2,1000}", 0)
+        assertFalse(NativeFilterMatcher.isPatternSafe(unsafe.pattern))
+        assertTrue(NativeFilterMatcher.isPatternSafe(valid.pattern))
     }
 
     @Test

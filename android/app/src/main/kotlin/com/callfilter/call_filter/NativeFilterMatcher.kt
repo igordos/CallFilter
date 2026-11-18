@@ -19,25 +19,42 @@ data class NativeRule(
  */
 object NativeFilterMatcher {
     private const val MAX_PATTERN_LENGTH = 256
+    private const val MAX_REPETITION_COUNT = 1000
     private val invisibleCharacters = Regex(
         "[${Char(0x200B)}${Char(0x200C)}${Char(0x200D)}${Char(0xFEFF)}]",
     )
-    private val whitespace = Regex("\\s+")
     private val nestedQuantifier = Regex(
         "\\((?:[^()\\\\]|\\\\.)*[+*](?:[^()\\\\]|\\\\.)*\\)\\s*(?:[+*]|\\{\\d+(?:,\\d*)?\\})",
     )
+    private val numericQuantifier = Regex("\\{(\\d+)(?:,(\\d*))?\\}")
     private val nonDigits = Regex("\\D")
 
     fun normalizeName(value: String): String {
         return value
             .replace(invisibleCharacters, "")
-            .replace(Char(0x00A0), ' ')
-            .replace(whitespace, " ")
+            .let(::collapseWhitespace)
             .trim()
             .lowercase()
     }
 
     fun normalizePhone(value: String): String = value.replace(nonDigits, "")
+
+    private fun collapseWhitespace(value: String): String {
+        val result = StringBuilder(value.length)
+        var previousWasWhitespace = false
+        for (character in value) {
+            val isWhitespace = character.isWhitespace() || character == Char(0x00A0)
+            if (isWhitespace) {
+                if (!previousWasWhitespace) {
+                    result.append(' ')
+                }
+            } else {
+                result.append(character)
+            }
+            previousWasWhitespace = isWhitespace
+        }
+        return result.toString()
+    }
 
     fun isWhitelisted(phoneNumber: String, whitelist: Set<String>): Boolean {
         val phone = normalizePhone(phoneNumber)
@@ -82,9 +99,28 @@ object NativeFilterMatcher {
         if (pattern.isBlank() || pattern.length > MAX_PATTERN_LENGTH) {
             return false
         }
-        if (pattern.any { it.code in 0x00..0x08 || it.code in 0x0E..0x1F }) {
+        if (pattern.any {
+                it.code in 0x00..0x08 ||
+                    it.code == 0x0B ||
+                    it.code == 0x0C ||
+                    it.code in 0x0E..0x1F ||
+                    it.code == 0x7F
+            }
+        ) {
+            return false
+        }
+        if (exceedsRepetitionLimit(pattern)) {
             return false
         }
         return !nestedQuantifier.containsMatchIn(pattern)
+    }
+
+    private fun exceedsRepetitionLimit(pattern: String): Boolean {
+        return numericQuantifier.findAll(pattern).any { match ->
+            val lower = match.groupValues[1].toLongOrNull()
+            val upper = match.groupValues[2].toLongOrNull()
+            (lower != null && lower > MAX_REPETITION_COUNT) ||
+                (upper != null && upper > MAX_REPETITION_COUNT)
+        }
     }
 }

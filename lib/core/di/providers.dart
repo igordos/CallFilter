@@ -4,6 +4,7 @@ import 'package:call_filter/core/database/app_database.dart';
 import 'package:call_filter/core/utils/id_generator.dart';
 import 'package:call_filter/features/call_filter/data/isolate_regex_match_runner.dart';
 import 'package:call_filter/features/call_filter/data/method_channel_call_screening_gateway.dart';
+import 'package:call_filter/features/call_filter/data/platform_sync_coordinator.dart';
 import 'package:call_filter/features/call_filter/data/platform_sync_service.dart';
 import 'package:call_filter/features/call_filter/data/unsupported_call_screening_gateway.dart';
 import 'package:call_filter/features/call_filter/domain/call_filter_engine.dart';
@@ -78,6 +79,25 @@ final platformCapabilitiesProvider = FutureProvider<PlatformCapabilities>((
   ref,
 ) {
   return ref.watch(callScreeningGatewayProvider).getCapabilities();
+});
+
+final platformSyncCoordinatorProvider = Provider<PlatformSyncCoordinator>((
+  ref,
+) {
+  final coordinator = PlatformSyncCoordinator(
+    syncService: ref.watch(platformSyncServiceProvider),
+    rulesRepository: ref.watch(rulesRepositoryProvider),
+    whitelistRepository: ref.watch(whitelistRepositoryProvider),
+    callHistoryRepository: ref.watch(callHistoryRepositoryProvider),
+    settingsRepository: ref.watch(settingsRepositoryProvider),
+  );
+  if (ref.watch(callScreeningGatewayProvider).isSupported) {
+    unawaited(coordinator.start());
+  }
+  ref.onDispose(() {
+    unawaited(coordinator.dispose());
+  });
+  return coordinator;
 });
 
 final platformSyncServiceProvider = Provider<PlatformSyncService>((ref) {
