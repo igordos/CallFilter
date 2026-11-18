@@ -1,0 +1,169 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+# analysis_server_plugin-based Riverpod checks. No custom_lint is needed with
+# Riverpod 3: dart analyze/flutter analyze loads this plugin directly.
+plugins:
+  riverpod_lint: ^3.2.0
+
+analyzer:
+  exclude:
+    - build/**
+    - .dart_tool/**
+    - android/**
+    - ios/**
+    - linux/**
+    - macos/**
+    - web/**
+    - windows/**
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - lib/l10n/gen/**
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    # App code is documented in docs/architecture.md and AGENTS.md. Requiring
+    # dartdoc on every widget/constructor would add noise without a consumer.
+    public_member_api_docs: false
+    # Dart 3.13 introduced the constructor shorthand (`new(...)` instead of
+    # `ClassName(...)`) alongside primary constructors. It is valid but not yet
+    # familiar to reviewers and generated code still uses the conventional form.
+    unnecessary_type_name_in_constructor: false
+    # Dependencies are injected through named parameters while the corresponding
+    # fields are private. Renaming the parameters to `this._field` would make
+    # them private named parameters, which callers in other libraries cannot use.
+    prefer_initializing_formals: false
+
+# DCM 1.40.4 integration.
+#
+# Free+: analyze, metrics, unused files, project structure.
+# Pro+: unused code, dependencies, code duplication and rule configuration.
+# Teams+: CI/CD key and GitLab/SARIF-oriented reporters.
+# Keep report generation non-destructive: never run `dcm fix` in CI.
+#
+# Generated code is already excluded from the Dart analyzer; DCM repeats the
+# exclusions per command so generated/widget-analysis helpers do not create
+# false positives.
+dcm:
+  metrics:
+    cyclomatic-complexity:
+      threshold: 15
+    maximum-nesting-level:
+      threshold: 5
+    number-of-parameters:
+      threshold: 6
+    lines-of-code:
+      threshold: 100
+    source-lines-of-code:
+      threshold: 80
+    weighted-methods-per-class:
+      threshold: 80
+    number-of-methods:
+      threshold: 20
+    coupling-between-object-classes:
+      threshold: 15
+    number-of-imports:
+      threshold: 25
+
+  exclude:
+    rules:
+      - test/**
+      - integration_test/**
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/*.mocks.dart"
+      - lib/l10n/gen/**
+    metrics:
+      - test/**
+      - integration_test/**
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/*.mocks.dart"
+      - lib/l10n/gen/**
+    unused-code:
+      - test/**
+      - integration_test/**
+      - tool/**
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/*.mocks.dart"
+      - lib/l10n/gen/**
+    unused-files:
+      - test/**
+      - integration_test/**
+      - tool/**
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/*.mocks.dart"
+      - lib/l10n/gen/**
+      # Flutter entrypoint is invoked by the platform, not imported by Dart.
+      - lib/main.dart
+    dependencies:
+      - test/**
+      - integration_test/**
+      - tool/**
+    code-duplication:
+      - test/**
+      - integration_test/**
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/*.mocks.dart"
+      - lib/l10n/gen/**
+
+  pubspec-rules:
+    - dependencies-ordering
+    - pubspec-ordering
+    - prefer-publish-to-none
+    - prefer-semver-version
+
+  rules:
+    - avoid-unused-parameters
+    # DCM architecture guard. The custom test in
+    # test/architecture/layer_dependencies_test.dart remains the cross-platform
+    # gate; these rules mirror its boundaries for IDE/CLI feedback.
+    - avoid-banned-imports:
+        entries:
+          - paths:
+              - 'lib/features/.*/domain/.*\.dart'
+            deny:
+              - 'package:flutter/.*'
+              - 'package:material_ui/.*'
+              - 'package:drift/.*'
+              - 'dart:ui'
+              - 'package:call_filter/features/.*/(data|presentation)/.*'
+              - 'package:call_filter/core/database/.*'
+            message: >-
+              Domain code must stay independent from Flutter, Drift, data and
+              presentation layers.
+            severity: error
+          - paths:
+              - 'lib/features/.*/data/.*\.dart'
+            deny:
+              - 'package:call_filter/features/.*/presentation/.*'
+              - 'package:material_ui/.*'
+            message: >-
+              Data code must not depend on presentation code or Material UI.
+            severity: error
+          - paths:
+              - 'lib/features/.*/presentation/.*\.dart'
+            deny:
+              - 'package:drift/.*'
+              - 'package:call_filter/features/.*/data/.*'
+              - 'package:call_filter/core/database/.*'
+            message: >-
+              Presentation code must reach persistence through repositories,
+              not Drift or concrete data implementations.
+            severity: error
+          - paths:
+              - 'lib/core/(?!di/).*\.dart'
+            deny:
+              - 'package:call_filter/features/.*'
+            message: >-
+              Core code outside the DI composition root must not import feature
+              implementations.
+            severity: error

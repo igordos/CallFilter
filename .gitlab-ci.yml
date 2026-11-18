@@ -1,0 +1,237 @@
+stages:
+  - verify
+  - security
+  - test
+  - quality
+  - build
+  - ios
+
+variables:
+  PUB_CACHE: "$CI_PROJECT_DIR/.pub-cache"
+  FLUTTER_VERSION: "3.50.0"
+  DCM_VERSION: "1.40.4"
+
+default:
+  interruptible: true
+
+# The base image supplies Android SDK/JDK tooling. Its Flutter is NOT used:
+# install_flutter_linux.sh downloads and checks the exact pinned Flutter 3.50.0
+# archive, so no `flutter upgrade` can change the analyzed version.
+.flutter_linux:
+  image: ghcr.io/cirruslabs/flutter:3.44.0
+  cache:
+    key:
+      files:
+        - pubspec.lock
+      prefix: linux-flutter-3.50.0
+    paths:
+      - .pub-cache/
+      - .dart_tool/
+      - .ci/
+  before_script:
+    - source tool/ci/install_flutter_linux.sh
+    - flutter pub get
+
+# ---------------------------------------------------------------------------
+# verify
+# ---------------------------------------------------------------------------
+
+format:
+  extends: .flutter_linux
+  stage: verify
+  script:
+    - dart format --output=none --set-exit-if-changed lib test integration_test
+
+analyze:
+  extends: .flutter_linux
+  stage: verify
+  script:
+    - flutter analyze
+
+# Code generation is checked once. Other jobs consume the committed generated
+# files, so build_runner is not repeated in every job.
+generated_code:
+  extends: .flutter_linux
+  stage: verify
+  script:
+    - flutter gen-l10n
+    - dart run build_runner build
+    - git diff --exit-code
+
+# DCM 1.40.4 is a commercial tool. Free+ commands work locally; a Teams+ CI
+# key is required for this job. When DCM_CI_KEY/DCM_EMAIL are configured, the
+# job runs on branches/MRs and analyze/metrics are blocking. Unused-code,
+# dependency and duplication reports are generated but report-only until the
+# baseline is reviewed. No DCM command modifies source files.
+code_metrics:
+  extends: .flutter_linux
+  stage: verify
+  rules:
+    - if: '$DCM_CI_KEY && $DCM_EMAIL'
+  before_script:
+    - source tool/ci/install_flutter_linux.sh
+    - flutter pub get
+  script:
+    - source tool/ci/install_dcm.sh && DCM_REPORTER=gitlab ./tool/quality/dcm.sh full
+  artifacts:
+    when: always
+    paths:
+      - reports/dcm-*
+    expire_in: 1 week
+
+# ---------------------------------------------------------------------------
+# security (independent scans run in parallel)
+# ---------------------------------------------------------------------------
+
+secret_scan:
+  stage: security
+  image:
+    name: ghcr.io/gitleaks/gitleaks:v8.30.1
+    entrypoint: [""]
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - mkdir -p reports
+    - gitleaks git --redact --no-banner --report-format sarif --report-path reports/gitleaks.sarif --verbose .
+  artifacts:
+    when: always
+    paths:
+      - reports/gitleaks.sarif
+    expire_in: 1 week
+
+dependency_scan:
+  stage: security
+  image:
+    name: ghcr.io/google/osv-scanner:v2.7.1
+    entrypoint: [""]
+  script:
+    - mkdir -p reports
+    - /osv-scanner scan source --lockfile=pubspec.lock --format=sarif --output-file=reports/osv.sarif .
+  artifacts:
+    when: always
+    paths:
+      - reports/osv.sarif
+    expire_in: 1 week
+
+security_scan:
+  stage: security
+  image:
+    name: semgrep/semgrep:1.150.0
+    entrypoint: [""]
+  script:
+    - mkdir -p reports
+    - >-
+      semgrep scan
+      --config p/security-audit
+      --config p/kotlin
+      --config p/swift
+      --metrics=off
+      --disable-version-check
+      --error
+      --sarif
+      --output=reports/semgrep.sarif
+      android/app/src/main/kotlin ios/Runner ios/CallDirectoryExtension
+  artifacts:
+    when: always
+    paths:
+      - reports/semgrep.sarif
+    expire_in: 1 week
+
+# ---------------------------------------------------------------------------
+# test
+# ---------------------------------------------------------------------------
+
+unit_tests:
+  extends: .flutter_linux
+  stage: test
+  script:
+    - flutter test test/architecture test/features/call_filter test/features/data test/features/rules/rules_controller_test.dart --coverage
+  artifacts:
+    when: always
+    paths:
+      - coverage/lcov.info
+
+android_native_tests:
+  extends: .flutter_linux
+  stage: test
+  script:
+    - (cd android && ./gradlew testDebugUnitTest)
+  artifacts:
+    when: always
+    paths:
+      - android/app/build/reports/tests/
+      - android/app/build/test-results/
+    expire_in: 1 week
+
+widget_tests:
+  extends: .flutter_linux
+  stage: test
+  script:
+    - flutter test test/shared/design_system_test.dart test/shared/responsive_accessibility_test.dart test/shared/adaptive_layout_test.dart test/shared/long_content_test.dart test/app/navigation_back_test.dart test/features/home/home_dashboard_test.dart test/features/rules/rules_filter_test.dart test/features/call_history/history_filter_test.dart test/features/rules/rules_screen_test.dart test/features/contacts/whitelist_screen_test.dart test/features/call_filter/caller_check_sheet_test.dart test/features/settings/language_switch_test.dart test/features/settings/theme_switch_test.dart test/features/settings/settings_screen_test.dart
+
+# Integration tests need a device/emulator runner. The repository provides
+# integration_test/, but no such GitLab runner is assumed by this pipeline.
+
+# ---------------------------------------------------------------------------
+# quality (centralized SonarQube analysis)
+# ---------------------------------------------------------------------------
+
+sonarqube:
+  stage: quality
+  image:
+    name: sonarsource/sonar-scanner-cli:12.4.0.4321_8.4.0
+    entrypoint: [""]
+  rules:
+    - if: '$SONAR_TOKEN && $SONAR_HOST_URL'
+  dependencies:
+    - unit_tests
+  cache:
+    key: sonar-scanner-12.4.0
+    paths:
+      - .sonar/cache/
+  variables:
+    SONAR_USER_HOME: "$CI_PROJECT_DIR/.sonar"
+  script:
+    - sonar-scanner -Dsonar.projectVersion=${CI_COMMIT_TAG:-$CI_COMMIT_SHORT_SHA}
+  allow_failure: false
+
+# ---------------------------------------------------------------------------
+# build
+# ---------------------------------------------------------------------------
+
+build_android_debug:
+  extends: .flutter_linux
+  stage: build
+  script:
+    - flutter build apk --debug
+  artifacts:
+    paths:
+      - build/app/outputs/flutter-apk/app-debug.apk
+    expire_in: 1 week
+
+# ---------------------------------------------------------------------------
+# ios
+# ---------------------------------------------------------------------------
+
+build_ios_simulator:
+  stage: ios
+  tags:
+    - macos
+  cache:
+    key:
+      files:
+        - pubspec.lock
+      prefix: macos-flutter-3.50.0
+    paths:
+      - .pub-cache/
+      - .dart_tool/
+  before_script:
+    - flutter --version
+    - flutter --version | grep -q "Flutter 3.50.0"
+    - flutter pub get
+  script:
+    - flutter build ios --simulator --no-codesign
+  artifacts:
+    paths:
+      - build/ios/iphonesimulator/Runner.app
+    expire_in: 1 week

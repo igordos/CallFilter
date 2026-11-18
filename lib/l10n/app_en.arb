@@ -1,0 +1,227 @@
+{
+  "@@locale": "en",
+  "appTitle": "CallFilter",
+  "navHome": "Home",
+  "navRules": "Rules",
+  "navWhitelist": "Whitelist",
+  "navHistory": "History",
+  "navSettings": "Settings",
+  "loading": "Loading",
+  "retry": "Retry",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "add": "Add",
+  "close": "Close",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "clear": "Clear",
+  "homeFilteringOn": "Filtering is on",
+  "homeFilteringOff": "Filtering is off",
+  "homeRulesCount": "{count, plural, =0{No rules} =1{1 rule} other{{count} rules}}",
+  "@homeRulesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeBlockedCount": "{count, plural, =0{No blocked calls} =1{1 blocked call} other{{count} blocked calls}}",
+  "@homeBlockedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeCheckCaller": "Check a caller",
+  "homeCheckCallerSubtitle": "Test rules locally and see the decision.",
+  "homeManageRules": "Manage rules",
+  "homeWhitelist": "Whitelist",
+  "homeHistory": "History",
+  "homeActiveRules": "Active rules",
+  "homeRecentBlockedTitle": "Recent blocked calls",
+  "homeViewAll": "View all",
+  "homeNoRecentBlocked": "No recent blocked calls",
+  "homeManageProtection": "Manage protection",
+  "homeQuickCheck": "Check",
+  "homeQuickRule": "Add",
+  "homeQuickHistory": "History",
+  "homeQuickProtection": "Protection",
+  "homeQuickActions": "Quick actions",
+  "rulesTitle": "Filter rules",
+  "rulesEmptyTitle": "No filter rules yet",
+  "rulesFilterActive": "Active",
+  "rulesFilterDisabled": "Disabled",
+  "rulesEmptyBody": "Create a rule to block callers by organization name.",
+  "addRule": "Add rule",
+  "searchRulesHint": "Search rules",
+  "searchHistoryHint": "Search blocked calls",
+  "searchWhitelistHint": "Search whitelist",
+  "filterAll": "All",
+  "moreActions": "More actions",
+  "searchClear": "Clear search",
+  "noSearchResultsTitle": "Nothing found",
+  "noSearchResultsBody": "Try a different query.",
+  "rulePriority": "Priority {priority}",
+  "@rulePriority": {
+    "placeholders": {
+      "priority": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleAddTitle": "New rule",
+  "ruleSectionIdentity": "Rule details",
+  "ruleSectionBehavior": "Behavior",
+  "ruleEditTitle": "Edit rule",
+  "ruleNameLabel": "Rule name",
+  "rulePatternLabel": "Organization name pattern (RegExp)",
+  "rulePatternHelp": "Matching is case-insensitive and applied to the normalized caller display name.",
+  "ruleDescriptionLabel": "Description (optional)",
+  "rulePriorityLabel": "Priority",
+  "ruleEnabledLabel": "Rule enabled",
+  "ruleSave": "Save rule",
+  "editorDiscardTitle": "Discard changes?",
+  "editorDiscardBody": "Unsaved changes will be lost.",
+  "editorDiscardConfirm": "Discard",
+  "editorKeepEditing": "Keep editing",
+  "ruleNameRequired": "Enter a rule name.",
+  "rulePatternRequired": "Enter a RegExp pattern.",
+  "ruleRegexInvalidSyntax": "The pattern is not a valid RegExp.",
+  "ruleRegexEmpty": "Enter a RegExp pattern.",
+  "ruleRegexTooLong": "The pattern is too long (max {max} characters).",
+  "@ruleRegexTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleRegexNestedQuantifier": "Nested quantifiers are not allowed because they can cause very slow matching.",
+  "ruleRegexRepetitionTooLarge": "Repetition counts above {max} are not allowed.",
+  "@ruleRegexRepetitionTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleRegexControlCharacters": "Control characters are not allowed.",
+  "ruleSaved": "Rule saved.",
+  "ruleDeleted": "Rule deleted.",
+  "rulePriorityInvalid": "Priority must be a whole number between 0 and 100.",
+  "ruleExampleTitle": "Example",
+  "ruleExampleBody": "Use ^ооо\\s+работа$ to match the organization \"ООО Работа\".",
+  "ruleDeleteTitle": "Delete rule?",
+  "ruleDeleteBody": "This rule will stop blocking calls.",
+  "whitelistTitle": "Whitelist",
+  "whitelistEmptyTitle": "Whitelist is empty",
+  "whitelistEmptyBody": "Numbers on the whitelist are never blocked.",
+  "whitelistAdd": "Add number",
+  "whitelistPhoneLabel": "Phone number",
+  "whitelistLabelLabel": "Label (optional)",
+  "whitelistPhoneInvalid": "Enter a phone number with at least 5 digits.",
+  "whitelistSaved": "Number added to the whitelist.",
+  "whitelistRemoved": "Number removed from the whitelist.",
+  "whitelistDeleteTitle": "Remove number?",
+  "whitelistDeleteBody": "The number will no longer be protected by the whitelist.",
+  "historyTitle": "Blocked calls",
+  "historyEmptyTitle": "No blocked calls",
+  "historyEmptyBody": "Blocked calls will appear here.",
+  "historyToday": "Today",
+  "historyFilterEarlier": "Earlier",
+  "historyYesterday": "Yesterday",
+  "historyClear": "Clear history",
+  "historyCleared": "Call history cleared.",
+  "historyClearTitle": "Clear call history?",
+  "historyClearBody": "All locally stored blocked calls will be removed.",
+  "historyUnknownOrganization": "Unknown organization",
+  "historyMatchedRule": "Matched rule: {rule}",
+  "@historyMatchedRule": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsTitle": "Settings",
+  "settingsAppearanceTitle": "Appearance",
+  "settingsThemeTitle": "Theme",
+  "settingsThemeSystem": "System",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsFilteringTitle": "Call filtering",
+  "settingsFilteringSubtitle": "Evaluate active rules for incoming calls.",
+  "settingsLogTitle": "Log blocked calls",
+  "settingsLogSubtitle": "Keep a local history of blocked calls.",
+  "settingsLanguage": "Language",
+  "settingsLanguageSystem": "System",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageRussian": "Русский",
+  "settingsPlatformTitle": "Platform integration",
+  "settingsPlatformSync": "Sync rules with system",
+  "settingsPlatformSynced": "Filter data sent to the platform layer.",
+  "settingsPlatformOpenSettings": "Open system settings",
+  "settingsPlatformUnavailable": "Native call screening is unavailable on this platform.",
+  "settingsPlatformExperimental": "Native integration is experimental and must be verified on a physical device. Android may not provide the caller display name; iOS can only use prepared number mappings.",
+  "settingsPlatformError": "Native integration error: {message}",
+  "@settingsPlatformError": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "capabilitiesTitle": "Capabilities",
+  "capabilityCallScreening": "Call screening service",
+  "capabilityCallerName": "Caller display name",
+  "capabilityCallDirectory": "Call Directory extension",
+  "capabilityNumberBlocking": "Phone number blocking",
+  "capabilityYes": "Yes",
+  "capabilityNo": "No",
+  "capabilityLimited": "Limited",
+  "settingsAboutTitle": "About",
+  "settingsAboutBody": "CallFilter reduces unwanted calls by matching the caller organization name. All settings and data stay on this device.",
+  "callerCheckTitle": "Check a caller",
+  "callerPhoneLabel": "Phone number",
+  "callerNameLabel": "Caller display name",
+  "callerPhoneHint": "+7 700 000 00 00",
+  "callerNameHint": "ООО Работа",
+  "callerPhoneInvalid": "Enter a phone number with at least 5 digits.",
+  "callerCheckAction": "Evaluate",
+  "callerBlockedTitle": "Call would be blocked",
+  "callerAllowedTitle": "Call would be allowed",
+  "callerBlockedBody": "Matched rule \"{rule}\" for {organization}.",
+  "@callerBlockedBody": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      },
+      "organization": {
+        "type": "String"
+      }
+    }
+  },
+  "callerAllowedBody": "Reason: {reason}.",
+  "@callerAllowedBody": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "callerNoRule": "No matching rule.",
+  "callerWhitelisted": "The number is on the whitelist.",
+  "callerNoName": "The caller display name is unavailable, so name-based rules cannot be applied.",
+  "callerFilteringDisabled": "Filtering is disabled in settings.",
+  "callerInvalidRules": "No safe rule could be evaluated.",
+  "callerTimeout": "Rule evaluation timed out.",
+  "callerLogged": "The blocked call was added to history.",
+  "errorGeneric": "Something went wrong.",
+  "errorDatabase": "Could not access the local database.",
+  "errorPlatformChannel": "The platform integration is unavailable.",
+  "errorRuleNotFound": "The rule was not found.",
+  "unsupportedPlatform": "Unsupported platform."
+}

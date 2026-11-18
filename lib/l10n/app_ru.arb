@@ -1,0 +1,227 @@
+{
+  "@@locale": "ru",
+  "appTitle": "CallFilter",
+  "navHome": "Главная",
+  "navRules": "Правила",
+  "navWhitelist": "Белый список",
+  "navHistory": "Журнал",
+  "navSettings": "Настройки",
+  "loading": "Загрузка",
+  "retry": "Повторить",
+  "cancel": "Отмена",
+  "save": "Сохранить",
+  "delete": "Удалить",
+  "edit": "Изменить",
+  "add": "Добавить",
+  "close": "Закрыть",
+  "enabled": "Включено",
+  "disabled": "Выключено",
+  "clear": "Очистить",
+  "homeFilteringOn": "Фильтрация включена",
+  "homeFilteringOff": "Фильтрация выключена",
+  "homeRulesCount": "{count, plural, =0{Нет правил} =1{1 правило} few{{count} правила} many{{count} правил} other{{count} правила}}",
+  "@homeRulesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeBlockedCount": "{count, plural, =0{Нет заблокированных звонков} =1{1 заблокированный звонок} few{{count} заблокированных звонка} many{{count} заблокированных звонков} other{{count} заблокированного звонка}}",
+  "@homeBlockedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeCheckCaller": "Проверить звонок",
+  "homeCheckCallerSubtitle": "Проверьте правило локально и посмотрите решение.",
+  "homeManageRules": "Управление правилами",
+  "homeWhitelist": "Белый список",
+  "homeHistory": "Журнал",
+  "homeActiveRules": "Активные правила",
+  "homeRecentBlockedTitle": "Последние блокировки",
+  "homeViewAll": "Все",
+  "homeNoRecentBlocked": "Недавних блокировок нет",
+  "homeManageProtection": "Управление защитой",
+  "homeQuickCheck": "Проверить",
+  "homeQuickRule": "Добавить",
+  "homeQuickHistory": "Журнал",
+  "homeQuickProtection": "Защита",
+  "homeQuickActions": "Быстрые действия",
+  "rulesTitle": "Правила фильтрации",
+  "rulesEmptyTitle": "Правил пока нет",
+  "rulesFilterActive": "Активные",
+  "rulesFilterDisabled": "Выключенные",
+  "rulesEmptyBody": "Создайте правило, чтобы блокировать звонки по названию организации.",
+  "addRule": "Добавить правило",
+  "searchRulesHint": "Поиск правил",
+  "searchHistoryHint": "Поиск в журнале",
+  "searchWhitelistHint": "Поиск в белом списке",
+  "filterAll": "Все",
+  "moreActions": "Действия",
+  "searchClear": "Очистить поиск",
+  "noSearchResultsTitle": "Ничего не найдено",
+  "noSearchResultsBody": "Попробуйте изменить запрос.",
+  "rulePriority": "Приоритет {priority}",
+  "@rulePriority": {
+    "placeholders": {
+      "priority": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleAddTitle": "Новое правило",
+  "ruleSectionIdentity": "Данные правила",
+  "ruleSectionBehavior": "Поведение",
+  "ruleEditTitle": "Редактирование правила",
+  "ruleNameLabel": "Название правила",
+  "rulePatternLabel": "Шаблон названия организации (RegExp)",
+  "rulePatternHelp": "Сопоставление без учёта регистра применяется к нормализованному отображаемому имени звонящего.",
+  "ruleDescriptionLabel": "Описание (необязательно)",
+  "rulePriorityLabel": "Приоритет",
+  "ruleEnabledLabel": "Правило включено",
+  "ruleSave": "Сохранить правило",
+  "editorDiscardTitle": "Отменить изменения?",
+  "editorDiscardBody": "Несохранённые изменения будут потеряны.",
+  "editorDiscardConfirm": "Отменить",
+  "editorKeepEditing": "Продолжить редактирование",
+  "ruleNameRequired": "Введите название правила.",
+  "rulePatternRequired": "Введите RegExp-шаблон.",
+  "ruleRegexInvalidSyntax": "Шаблон не является корректным RegExp.",
+  "ruleRegexEmpty": "Введите RegExp-шаблон.",
+  "ruleRegexTooLong": "Шаблон слишком длинный (не более {max} символов).",
+  "@ruleRegexTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleRegexNestedQuantifier": "Вложенные квантификаторы запрещены, так как могут привести к очень медленной проверке.",
+  "ruleRegexRepetitionTooLarge": "Повторы больше {max} запрещены.",
+  "@ruleRegexRepetitionTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleRegexControlCharacters": "Управляющие символы запрещены.",
+  "ruleSaved": "Правило сохранено.",
+  "ruleDeleted": "Правило удалено.",
+  "rulePriorityInvalid": "Приоритет должен быть целым числом от 0 до 100.",
+  "ruleExampleTitle": "Пример",
+  "ruleExampleBody": "Используйте ^ооо\\s+работа$, чтобы найти организацию «ООО Работа».",
+  "ruleDeleteTitle": "Удалить правило?",
+  "ruleDeleteBody": "Это правило перестанет блокировать звонки.",
+  "whitelistTitle": "Белый список",
+  "whitelistEmptyTitle": "Белый список пуст",
+  "whitelistEmptyBody": "Номера из белого списка не блокируются.",
+  "whitelistAdd": "Добавить номер",
+  "whitelistPhoneLabel": "Номер телефона",
+  "whitelistLabelLabel": "Метка (необязательно)",
+  "whitelistPhoneInvalid": "Введите номер телефона, содержащий минимум 5 цифр.",
+  "whitelistSaved": "Номер добавлен в белый список.",
+  "whitelistRemoved": "Номер удалён из белого списка.",
+  "whitelistDeleteTitle": "Удалить номер?",
+  "whitelistDeleteBody": "Номер больше не будет защищён белым списком.",
+  "historyTitle": "Заблокированные звонки",
+  "historyEmptyTitle": "Заблокированных звонков нет",
+  "historyEmptyBody": "Здесь появится история блокировок.",
+  "historyToday": "Сегодня",
+  "historyFilterEarlier": "Ранее",
+  "historyYesterday": "Вчера",
+  "historyClear": "Очистить журнал",
+  "historyCleared": "Журнал очищен.",
+  "historyClearTitle": "Очистить журнал?",
+  "historyClearBody": "Все локально сохранённые заблокированные звонки будут удалены.",
+  "historyUnknownOrganization": "Неизвестная организация",
+  "historyMatchedRule": "Совпало правило: {rule}",
+  "@historyMatchedRule": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsTitle": "Настройки",
+  "settingsAppearanceTitle": "Внешний вид",
+  "settingsThemeTitle": "Тема",
+  "settingsThemeSystem": "Системная",
+  "settingsThemeLight": "Светлая",
+  "settingsThemeDark": "Тёмная",
+  "settingsFilteringTitle": "Фильтрация звонков",
+  "settingsFilteringSubtitle": "Проверять активные правила для входящих звонков.",
+  "settingsLogTitle": "Записывать блокировки",
+  "settingsLogSubtitle": "Хранить локальную историю заблокированных звонков.",
+  "settingsLanguage": "Язык",
+  "settingsLanguageSystem": "Системный",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageRussian": "Русский",
+  "settingsPlatformTitle": "Платформенная интеграция",
+  "settingsPlatformSync": "Синхронизировать правила с системой",
+  "settingsPlatformSynced": "Данные фильтрации переданы платформенному слою.",
+  "settingsPlatformOpenSettings": "Открыть системные настройки",
+  "settingsPlatformUnavailable": "Нативная фильтрация звонков недоступна на этой платформе.",
+  "settingsPlatformExperimental": "Нативная интеграция экспериментальна и требует проверки на реальном устройстве. Android может не передавать имя звонящего; iOS использует только заранее подготовленные соответствия номеров.",
+  "settingsPlatformError": "Ошибка нативной интеграции: {message}",
+  "@settingsPlatformError": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "capabilitiesTitle": "Возможности",
+  "capabilityCallScreening": "Служба фильтрации звонков",
+  "capabilityCallerName": "Имя звонящего",
+  "capabilityCallDirectory": "Расширение Call Directory",
+  "capabilityNumberBlocking": "Блокировка номеров",
+  "capabilityYes": "Да",
+  "capabilityNo": "Нет",
+  "capabilityLimited": "Ограничено",
+  "settingsAboutTitle": "О приложении",
+  "settingsAboutBody": "CallFilter помогает фильтровать нежелательные звонки по названию организации. Настройки и данные хранятся только на этом устройстве.",
+  "callerCheckTitle": "Проверка звонящего",
+  "callerPhoneLabel": "Номер телефона",
+  "callerNameLabel": "Имя звонящего",
+  "callerPhoneHint": "+7 700 000 00 00",
+  "callerNameHint": "ООО Работа",
+  "callerPhoneInvalid": "Введите номер телефона, содержащий минимум 5 цифр.",
+  "callerCheckAction": "Проверить",
+  "callerBlockedTitle": "Звонок будет заблокирован",
+  "callerAllowedTitle": "Звонок будет разрешён",
+  "callerBlockedBody": "Совпало правило «{rule}» для {organization}.",
+  "@callerBlockedBody": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      },
+      "organization": {
+        "type": "String"
+      }
+    }
+  },
+  "callerAllowedBody": "Причина: {reason}.",
+  "@callerAllowedBody": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "callerNoRule": "Совпадений нет.",
+  "callerWhitelisted": "Номер находится в белом списке.",
+  "callerNoName": "Имя звонящего недоступно, поэтому правила по названию нельзя применить.",
+  "callerFilteringDisabled": "Фильтрация выключена в настройках.",
+  "callerInvalidRules": "Не удалось проверить ни одно безопасное правило.",
+  "callerTimeout": "Время проверки правил истекло.",
+  "callerLogged": "Заблокированный звонок добавлен в журнал.",
+  "errorGeneric": "Что-то пошло не так.",
+  "errorDatabase": "Не удалось получить доступ к локальной базе данных.",
+  "errorPlatformChannel": "Платформенная интеграция недоступна.",
+  "errorRuleNotFound": "Правило не найдено.",
+  "unsupportedPlatform": "Платформа не поддерживается."
+}

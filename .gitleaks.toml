@@ -1,0 +1,21 @@
+# Gitleaks uses its built-in rule set plus this project policy.
+# Do not add secrets here, including test secrets.
+[extend]
+useDefault = true
+
+# Build output and dependency caches are not committed source. These paths are
+# excluded from directory scans; no secret finding is being waived.
+[allowlist]
+description = "Generated/build/dependency directories are outside source control."
+paths = [
+  '''^build/''',
+  '''^\.dart_tool/''',
+  '''^\.pub-cache/''',
+  '''^coverage/''',
+  '''^reports/''',
+  '''^\.ci/''',
+  '''^\.git/''',
+  '''^android/\.gradle/''',
+  '''^ios/Pods/''',
+  '''^ios/Flutter/ephemeral/''',
+]

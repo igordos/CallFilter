@@ -1,0 +1,13 @@
+# Generated and dependency material is never security-reviewed as source.
+build/
+.dart_tool/
+.pub-cache/
+coverage/
+.ci/
+android/.gradle/
+android/local.properties
+ios/Pods/
+ios/Flutter/ephemeral/
+**/*.g.dart
+**/*.freezed.dart
+lib/l10n/gen/
